@@ -1,0 +1,35 @@
+A three-server web infrastructure that hosts www.foobar.com
+
+Components:
+- 2 servers for Web (Nginx) + App (your code base)
+- 1 load balancer (HAProxy)
+- 1 MySQL database with Primary-Replica setup
+- Domain name: foobar.com with A record for www pointing to Load Balancer IP
+
+How it works:
+1. User enters www.foobar.com → DNS resolves to Load Balancer IP.
+2. Load Balancer (HAProxy) distributes request using Round Robin to one of the two web servers.
+3. Each server runs Nginx and the Application server (code base).
+4. Application servers interact with MySQL database (Primary-Replica cluster).
+   - Primary handles writes; Replica handles reads.
+5. Response flows back through Nginx → Load Balancer → User.
+
+Why each component:
+- Load Balancer: Distributes traffic, improves availability.
+- Two App/Web servers: Scalability and redundancy.
+- Primary-Replica DB: Improves read performance and fault tolerance.
+
+Load Balancer:
+- Uses Round Robin algorithm.
+- This is an Active-Active setup (both servers handle traffic).
+- Contrast: Active-Passive has standby server waiting for failover.
+
+Database:
+- Primary handles writes.
+- Replica used for read-only queries, synced with Primary via replication.
+
+Issues:
+- SPOF: If Load Balancer goes down, entire app is unavailable.
+- No HTTPS: Communication is not encrypted, vulnerable to interception.
+- No firewall: All ports may be exposed to attackers.
+- No monitoring: No alerts for failure, high load, or unusual activity.

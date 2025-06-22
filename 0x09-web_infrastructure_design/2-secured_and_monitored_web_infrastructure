@@ -1,0 +1,29 @@
+A secured and monitored web infrastructure hosting www.foobar.com
+
+Components:
+- 3 servers: Load Balancer, 2 Web/App Servers
+- 1 SSL certificate for HTTPS on www.foobar.com
+- 3 firewalls (one per server)
+- 3 monitoring clients (one per server)
+- MySQL database with Primary and Replica setup
+
+How it works:
+1. User accesses https://www.foobar.com → DNS resolves to Load Balancer IP.
+2. Load Balancer terminates SSL and forwards requests to web/app servers via round-robin.
+3. App servers process requests and read/write from MySQL database.
+4. Monitoring agents collect and forward system and application metrics to a monitoring service.
+
+Why the added components:
+- Firewalls: Restrict unauthorized access, secure the network.
+- SSL: Encrypts user-server traffic to prevent eavesdropping.
+- Monitoring: Collects performance metrics, helps detect failures early.
+
+Monitoring QPS:
+- Enable and parse Nginx logs or use Nginx metrics exporter.
+- Use tools like SumoLogic or Prometheus to visualize queries per second (QPS).
+
+Issues:
+- SSL termination at LB: Leaves internal traffic unencrypted unless HTTPS is used end-to-end.
+- Single writable DB: SPOF — database unavailability halts write operations.
+- Mixed-role servers: Blurs architectural boundaries, complicates scaling and increases risk.
+
