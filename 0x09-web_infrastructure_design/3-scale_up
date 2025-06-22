@@ -1,0 +1,20 @@
+A scalable web infrastructure that hosts www.foobar.com with:
+
+Components:
+- 2 Load Balancers (HAProxy) in active-passive cluster
+- 2 Web Servers (Nginx)
+- 2 Application Servers
+- 1 MySQL Database Server
+- 1 Additional Server (for horizontal scaling or HAProxy clustering)
+- Domain: www.foobar.com pointing to floating IP for HAProxy cluster
+
+Rationale:
+- Load Balancer Cluster: Prevents single point of failure at the entry point.
+- Web Server Separation: Static content handled separately for efficiency.
+- App Server Isolation: Backend code is isolated and scalable independently.
+- Dedicated DB: Ensures consistency and optimizes data operations.
+- Additional Server: Increases fault tolerance and scalability.
+
+Web Server vs App Server:
+- Web Server (e.g., Nginx): Handles static files, SSL, reverse proxy.
+- App Server (e.g., Gunicorn, Node): Runs dynamic backend code.
