@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# SSH connection using only single-character flags
+# -i: identity file (private key)
+# -o: option (used here to suppress known_hosts prompt for cleaner output, optional)
+
+ssh -i ~/.ssh/school ubuntu@8.8.8.8
