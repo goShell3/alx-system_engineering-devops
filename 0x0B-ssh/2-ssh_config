@@ -1,1 +1,12 @@
 #!/usr/bin/env bash
+# Configures the SSH client to use ~/.ssh/school and disable password authentication
+
+cat <<EOF > ~/.ssh/config
+Host server01
+    HostName 8.8.8.8
+    User ubuntu
+    IdentityFile ~/.ssh/school
+    PasswordAuthentication no
+EOF
+
+chmod 600 ~/.ssh/config
