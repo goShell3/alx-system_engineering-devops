@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Install Nginx with automatic yes to prompts
+apt-get update -y
+apt-get install nginx -y
+
+# Create custom index.html with Hello World!
+echo "Hello World!" > /var/www/html/index.html
+
+# Configure Nginx to listen on port 80
+sed -i 's/listen \[::\]:80 default_server;/listen \[::\]:80;/' /etc/nginx/sites-enabled/default
+
+# Restart Nginx without using systemctl
+service nginx restart
+
+# Verify Nginx is running on port 80
+netstat -tulnp | grep ':80' | grep nginx
+
+# Enable firewall and allow HTTP traffic
+ufw allow 'Nginx HTTP'
+
+# Display completion message
+echo "Nginx installation and configuration complete."
+echo "You can now access your server with: curl localhost"
