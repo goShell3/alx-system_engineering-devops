@@ -1,9 +1,29 @@
 #!/usr/bin/env bash
-# Configures a new Ubuntu server with a custom HTTP header response
-apt-get -y update
-apt-get -y install nginx
-ufw allow 'Nginx HTTP'
-echo 'Holberton School' > /var/www/html/index.nginx-debian.html
-sed -i '/listen 80 default_server;/a rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;' /etc/nginx/sites-available/default
-sed -i '/listen 80 default_server;/a add_header X-Served-By $hostname;' /etc/nginx/sites-available/default
-service nginx start
+# Script to install Nginx and configure a custom HTTP header X-Served-By with the server's hostname
+
+set -e
+
+# Update package index and install nginx
+apt-get update -y
+apt-get install -y nginx
+
+# Ensure the hostname command works correctly
+hostname=$(hostname)
+
+# Configure Nginx to add custom response header
+CUSTOM_HEADER_CONF="/etc/nginx/conf.d/custom_header.conf"
+
+cat <<EOF > "$CUSTOM_HEADER_CONF"
+add_header X-Served-By \$hostname;
+EOF
+
+# Ensure the header is loaded in the main config
+# (Not strictly necessary if /conf.d is included, but safe to confirm)
+if ! grep -q "include /etc/nginx/conf.d/*.conf;" /etc/nginx/nginx.conf; then
+    sed -i '/http {/a\    include /etc/nginx/conf.d/*.conf;' /etc/nginx/nginx.conf
+fi
+
+# Restart nginx using init script (for Ubuntu 16.04)
+service nginx restart
+
+echo "Nginx configured with custom header: X-Served-By: $hostname"
