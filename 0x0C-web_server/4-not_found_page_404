@@ -1,30 +1,35 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Install nginx web server
 
-# Install Nginx if not already installed
-apt-get update -y
-apt-get install nginx -y
+# Update the package list on the system
+sudo apt -y update
 
-# Create custom 404 page
-mkdir -p /var/www/html/errors
-echo "Ceci n'est pas une page" > /var/www/html/errors/404.html
+# Install nginx
+sudo apt -y install nginx
 
-# Configure Nginx to use custom 404 page
-CONFIG_FILE="/etc/nginx/sites-available/default"
-ERROR_CONFIG="error_page 404 /errors/404.html;
-location = /errors/404.html {
-    internal;
-}"
+# Create a custom HTML file with "Hello World!" for default website
+sudo sh -c 'echo "Hello World!" > /var/www/html/index.nginx-debian.html'
 
-# Insert error configuration after the server_name line
-sed -i "/server_name _;/a $ERROR_CONFIG" $CONFIG_FILE
+# Add a new location /redirect_me to perform a 301 permanent redirect to the specified YouTube URL
+sudo sed -i '/^}$/i \ \n\tlocation \/redirect_me {\n\t\trewrite ^ https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;\n\t}' /etc/nginx/sites-available/default
 
-# Test Nginx configuration
-nginx -t
+# Create Custom Error 404 HTML file
+echo "Ceci n'est pas une page" | sudo tee /usr/share/nginx/html/custom_404.html
 
-# Restart Nginx without using systemctl
-service nginx restart
+# Create Named location @404 for for 404 errors
+sudo sed -i '/^}$/i \ \n\tlocation @custom_404 {\n\t\trewrite ^ /custom_404.html break;\n\t}' /etc/nginx/sites-available/default
 
-# Verify the configuration
-echo "Configuration complete. Test with:"
-echo "curl localhost/nonexistentpage"
-echo "curl -sI localhost/nonexistentpage"
+# Replace =404 if it exists with @custom_404
+sudo sed -i 's/=404/@custom_404/g' /etc/nginx/sites-available/default
+
+# Define Custom error for 404
+sudo sed -i '/^}$/i \ \n\terror_page 404 /custom_404.html;' /etc/nginx/sites-available/default
+
+# Configure the location and settings for the custom 404 page
+sudo sed -i '/^}$/i \ \n\tlocation = /custom_404.html {\n\t\troot /usr/share/nginx/html;\n\t\tinternal;\n\t}' /etc/nginx/sites-available/default
+
+# Start automatically nginxt at boot
+sudo systemctl enable nginx
+
+# Start nginx
+sudo service nginx start
