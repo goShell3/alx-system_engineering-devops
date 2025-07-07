@@ -1,24 +1,18 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Script to install and configure Nginx to serve "Hello World!" on /
 
-# Install Nginx with automatic yes to prompts
+# Exit on error
+set -e
+
+# Update package list and install nginx silently
 apt-get update -y
-apt-get install nginx -y
+apt-get install -y nginx
 
-# Create custom index.html with Hello World!
+# Create a simple Hello World page
 echo "Hello World!" > /var/www/html/index.html
 
-# Configure Nginx to listen on port 80
-sed -i 's/listen \[::\]:80 default_server;/listen \[::\]:80;/' /etc/nginx/sites-enabled/default
+# Ensure nginx is started using service (not systemctl)
+service nginx start || true  # ignore if already running
 
-# Restart Nginx without using systemctl
-service nginx restart
-
-# Verify Nginx is running on port 80
-netstat -tulnp | grep ':80' | grep nginx
-
-# Enable firewall and allow HTTP traffic
-ufw allow 'Nginx HTTP'
-
-# Display completion message
-echo "Nginx installation and configuration complete."
-echo "You can now access your server with: curl localhost"
+# Optional: ensure nginx restarts if already running
+service nginx restart || true
